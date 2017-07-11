@@ -105,7 +105,7 @@ function initServer(){
 	});
 
 	// bind APIs
-	//this.load(require('./api/api-spherechart.js'));
+	self.load(require('./api/api-video.js'));
 	// this.load(require('./api/api-dashpanel.js'));		
 	// this.load(require('./api/api-cruds.js'));
 	// this.load(require('./api/api-volumes.js'));	
