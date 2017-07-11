@@ -1,0 +1,72 @@
+@import "../pcss/utils.pcss";
+
+.HomeView{
+	
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	
+	.home-card{
+		@mixin elev-anim;
+		@mixin elev-2;
+		&:hover{
+			@mixin elev-24;
+		}
+		padding: 16px 32px;
+		
+		margin-right: 32px;
+		margin-bottom: 32px;
+		
+		&:last-child{
+			margin-left: 0;
+		}
+								
+		background: #fff;							
+		display: flex;
+		height: 200px;
+		width: 480px;
+		flex-direction: column;
+		text-decoration: none;
+		color: $txt;
+
+		/* margin-right: 16px; */
+		h1{
+			font-size: 24px;
+			align-self: left; 
+			font-weight: 100;
+			letter-spacing: .1em;
+		}
+		
+		p{
+			font-size: 18px;
+			font-weight: 200;
+		}
+
+
+		&.demo-canvas{
+			
+			div{
+				margin: 0;
+				padding: 0;
+				flex: 1 0 0;
+				position: relative;
+				
+				canvas{
+					position: absolute;
+					margin: 0;
+					padding: 0;
+					background: blue;
+				}
+				
+			}
+		}
+
+		&.demo-d3{
+			div{
+				flex: 1;
+			}
+		}
+	}
+}
