@@ -4,15 +4,29 @@
 	
 	flex: 1;
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	flex-wrap: wrap;
-	align-content: flex-start;
 	align-items: center;
+	justify-content: center;
 	
 	.video-con{
-		flex: 1;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		position: relative;
+		.annos-con{
+			@mixin fit-parent;
+			pointer-events: none;
+			.rectangle{
+				position: absolute;
+				width: 30px;
+				height: 30px;
+				border: 1px solid red;
+			}
+		}
+	}
+
+	.toolbar{
+		margin-top: 24px;
 	}
 }

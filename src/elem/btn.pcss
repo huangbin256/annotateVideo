@@ -9,7 +9,6 @@ button, .btn{
 	height: 36px;
 	line-height: 36px;
 	padding: 0 2rem;
-	text-transform: uppercase;
 	vertical-align: middle;
 	-webkit-tap-highlight-color: transparent;
 	cursor: pointer;
@@ -17,14 +16,15 @@ button, .btn{
 	position: relative;
 	overflow: hidden;
 	user-select: none;
+	background-color: #dddddd;
 	
 	&:hover{
-		background-color: #DFDFDF;
+		background-color: #999999;
 	}
 
 	&:focus{
 		outline: none;
-		background-color: #DFDFDF;
+		background-color: #999999;
 	}
 
 	@mixin ripple;
