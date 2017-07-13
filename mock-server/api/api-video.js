@@ -16,8 +16,7 @@ routes.push({
 	handler: function (request, reply) {
 		var name = request.url.query.n;
 		var file = path.resolve(_dataPath, name);
-
-		reply(fs.readFileSync(file))
+		reply.file(file)
 			.encoding('binary')
 			.type('video/mp4');
 
