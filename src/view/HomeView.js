@@ -40,9 +40,16 @@ d.register("HomeView",{
 
 function addAnnotation(){
 	var view = this;
+	var x = Math.random();
+	var y = Math.random();
+	var w = Math.random() * (1 - x);
+	var h = Math.random() * (1 - y);
+
 	return {
-		x: Math.random(),
-		y: Math.random()
+		x: x,
+		y: y,
+		w: w,
+		h: h
 	};
 }
 
@@ -50,11 +57,15 @@ function showAnnotations(anno){
 	var view = this;
 	var conEl = d.first(view.el, ".annos-con");
 	var divEl = document.createElement("div");
+	var width = conEl.clientWidth;
+	var height = conEl.clientHeight;
 	divEl.classList.add("rectangle");
 
 	// position and size
 	divEl.style.left = (anno.x * 100) + "%";
 	divEl.style.top = (anno.y * 100) + "%";
+	divEl.style.width = (anno.w * width) + "px";
+	divEl.style.height = (anno.h * height) + "px";
 
 	d.append(conEl, divEl);
 	setTimeout(function(){
