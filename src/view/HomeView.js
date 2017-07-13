@@ -3,6 +3,7 @@ var Gtx = window.Gtx;
 var d3 = window.d3;
 
 var render = require("js-app/render.js").render;
+var color = require("js-app/color.js");
 // key would be time
 // annotation: {x: 1, y: 1}
 var _annotations = {};
@@ -49,7 +50,8 @@ function addAnnotation(){
 		x: x,
 		y: y,
 		w: w,
-		h: h
+		h: h,
+		color: color.random()
 	};
 }
 
@@ -66,6 +68,7 @@ function showAnnotations(anno){
 	divEl.style.top = (anno.y * 100) + "%";
 	divEl.style.width = (anno.w * width) + "px";
 	divEl.style.height = (anno.h * height) + "px";
+	divEl.style.borderColor = anno.color;
 
 	d.append(conEl, divEl);
 	setTimeout(function(){
