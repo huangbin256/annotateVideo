@@ -18,10 +18,11 @@ d.register("HomeView",{
 		var view = this; // best practice, set the view variable first.	
 		d.on(d.first("video"), "timeupdate", function(evt){
 			var videoEl = evt.target;
-			var time = parseInt(videoEl.currentTime);
-			var anno = _annotations[time];
-			if(anno){
-				showAnnotations.call(view, anno);
+			var annos = getAnnotations.call(view, videoEl.currentTime);
+			if(annos.length > 0){
+				for(var i = 0; i < annos.length; i++){
+					showAnnotation.call(view, annos[i]);
+				}
 			}
 		});
 	},
@@ -30,16 +31,15 @@ d.register("HomeView",{
 		"click; .btn-add-anno":function(evt){
 			var view = this;
 			var videoEl = d.first(view.el, "video");
-			var anno = addAnnotation.call(view);
-			var time = parseInt(videoEl.currentTime);
-			_annotations[time] = anno;
-			showAnnotations.call(view, anno);
+			var anno = generateAnnotation.call(view, videoEl.currentTime);
+			addAnnotation.call(view, anno);
+			showAnnotation.call(view, anno);
 		}
 	}
 
 });
 
-function addAnnotation(){
+function generateAnnotation(time){
 	var view = this;
 	var x = Math.random();
 	var y = Math.random();
@@ -51,11 +51,29 @@ function addAnnotation(){
 		y: y,
 		w: w,
 		h: h,
+		time: time,
 		color: color.random()
 	};
 }
 
-function showAnnotations(anno){
+function addAnnotation(newAnno){
+	var view = this;
+	var time = parseInt(newAnno.time);
+	var annos = getAnnotations.call(view, newAnno.time);
+	annos.push(newAnno);
+	annos.sort(function(a, b){
+		return a.time > b.time ? 1 : -1;
+	});
+	_annotations[time] = annos;
+}
+
+function getAnnotations(time){
+	var view = this;
+	var time = parseInt(time);
+	return _annotations[time] || [];
+}
+
+function showAnnotation(anno){
 	var view = this;
 	var conEl = d.first(view.el, ".annos-con");
 	var divEl = document.createElement("div");
