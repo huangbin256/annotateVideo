@@ -18,11 +18,18 @@
 		.annos-con{
 			@mixin fit-parent;
 			pointer-events: none;
+			z-index: 5;
 			.rectangle{
 				position: absolute;
 				width: 30px;
 				height: 30px;
 				border: 1px solid red;
+			}
+		}
+		video{
+			&::-webkit-media-controls-enclosure{
+				position:relative;
+				z-index: 10;
 			}
 		}
 	}
