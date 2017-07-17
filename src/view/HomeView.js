@@ -18,6 +18,7 @@ d.register("HomeView",{
 		var view = this; // best practice, set the view variable first.	
 		d.on(d.first("video"), "timeupdate", function(evt){
 			var videoEl = evt.target;
+			clearAnnotation.call(view);
 			var annos = getAnnotations.call(view, videoEl.currentTime);
 			if(annos.length > 0){
 				for(var i = 0; i < annos.length; i++){
@@ -73,6 +74,11 @@ function getAnnotations(time){
 	return _annotations[time] || [];
 }
 
+function clearAnnotation(){
+	var view = this;
+	d.empty(d.first(view.el, ".annos-con"));
+}
+
 function showAnnotation(anno){
 	var view = this;
 	var conEl = d.first(view.el, ".annos-con");
@@ -89,7 +95,4 @@ function showAnnotation(anno){
 	divEl.style.borderColor = anno.color;
 
 	d.append(conEl, divEl);
-	setTimeout(function(){
-		d.remove(divEl);
-	}, 1000);
 }
