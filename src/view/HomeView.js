@@ -93,6 +93,7 @@ function showAnnotation(anno){
 	divEl.style.width = (anno.w * width) + "px";
 	divEl.style.height = (anno.h * height) + "px";
 	divEl.style.borderColor = anno.color;
+	divEl.style.backgroundColor = color.fade(anno.color, .3);
 
 	d.append(conEl, divEl);
 }
