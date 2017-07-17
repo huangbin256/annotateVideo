@@ -2,7 +2,8 @@ module.exports = {
 	gradient: gradient,
 	rgb: colorRgb,
 	hex: colorHex,
-	random: random
+	random: random,
+	fade: fade
 };
 
 var COLOR_REG = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
@@ -21,6 +22,12 @@ function random(pattern){
 
 	return color;
 
+}
+
+function fade(color, alpha){
+	var col = colorRgb(color);
+	var arrColor = col.replace(/(?:\(|\)|rgb|RGB)*/g,"").split(",");
+	return "rgba("+arrColor[0]+", "+arrColor[1]+", "+arrColor[2]+", "+alpha+")";
 }
 
 // the color can be hex or rgb, step is between 0 and 1
