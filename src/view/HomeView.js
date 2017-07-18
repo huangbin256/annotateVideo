@@ -16,7 +16,9 @@ d.register("HomeView",{
 
 	postDisplay: function(){
 		var view = this; // best practice, set the view variable first.	
-		d.on(d.first("video"), "timeupdate", function(evt){
+		view._videoEl = d.first("video");
+
+		d.on(view._videoEl, "timeupdate", function(evt){
 			var videoEl = evt.target;
 			clearAnnotation.call(view);
 			var annos = getAnnotations.call(view, videoEl.currentTime);
@@ -31,7 +33,8 @@ d.register("HomeView",{
 	events: {
 		"click; .btn-add-anno":function(evt){
 			var view = this;
-			var videoEl = d.first(view.el, "video");
+			var videoEl = view._videoEl;
+			videoEl.pause();
 			var anno = generateAnnotation.call(view, videoEl.currentTime);
 			addAnnotation.call(view, anno);
 			showAnnotation.call(view, anno);
