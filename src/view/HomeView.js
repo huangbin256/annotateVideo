@@ -20,6 +20,7 @@ d.register("HomeView",{
 
 		d.on(view._videoEl, "timeupdate", function(evt){
 			var videoEl = evt.target;
+			showCurrentTime.call(view);
 			clearAnnotation.call(view);
 			var annos = getAnnotations.call(view, videoEl.currentTime);
 			if(annos.length > 0){
@@ -38,11 +39,40 @@ d.register("HomeView",{
 			var anno = generateAnnotation.call(view, videoEl.currentTime);
 			addAnnotation.call(view, anno);
 			showAnnotation.call(view, anno);
+		},
+
+		"keyup; .time-values":function(evt){
+			var view = this;
+			if(evt.keyCode == 13){
+				var timeEl = evt.selectTarget;
+				var value = timeEl.value;
+				value = isNaN(value * 1) ? -1 : value;
+				gotoTime.call(view, value);
+			}
 		}
 	}
 
 });
 
+
+// --------- controls ---------//
+function showCurrentTime(){
+	var view = this;
+	var videoEl = view._videoEl;
+	var inputEl = d.first(view.el, ".controlbar input");
+	inputEl.value = videoEl.currentTime;
+}
+
+function gotoTime(time){
+	var view = this;
+	var videoEl = view._videoEl;
+	var inputEl = d.first(view.el, ".controlbar input");
+	videoEl.currentTime = time;
+	inputEl.value = time;
+}
+// --------- /controls ---------//
+
+// --------- annotation ---------//
 function generateAnnotation(time){
 	var view = this;
 	var x = Math.random();
@@ -100,3 +130,4 @@ function showAnnotation(anno){
 
 	d.append(conEl, divEl);
 }
+// --------- /annotation ---------//
