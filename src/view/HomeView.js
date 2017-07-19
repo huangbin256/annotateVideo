@@ -34,9 +34,10 @@ d.register("HomeView",{
 	events: {
 		"click; .btn-add-anno":function(evt){
 			var view = this;
+			var type = evt.selectTarget.getAttribute("data-type");
 			var videoEl = view._videoEl;
 			videoEl.pause();
-			var anno = generateAnnotation.call(view, videoEl.currentTime);
+			var anno = generateAnnotation.call(view, videoEl.currentTime, type);
 			addAnnotation.call(view, anno);
 			showAnnotation.call(view, anno);
 		},
@@ -73,21 +74,29 @@ function gotoTime(time){
 // --------- /controls ---------//
 
 // --------- annotation ---------//
-function generateAnnotation(time){
+function generateAnnotation(time, type){
 	var view = this;
 	var x = Math.random();
 	var y = Math.random();
 	var w = Math.random() * (1 - x);
 	var h = Math.random() * (1 - y);
 
-	return {
+	var obj = {
 		x: x,
 		y: y,
-		w: w,
-		h: h,
 		time: time,
+		type: type,
 		color: color.random()
 	};
+
+	if(type == "circle"){
+		obj.r = w;
+	}else{
+		obj.w = w;
+		obj.h = h;
+	}
+
+	return obj;
 }
 
 function addAnnotation(newAnno){
@@ -118,15 +127,25 @@ function showAnnotation(anno){
 	var divEl = document.createElement("div");
 	var width = conEl.clientWidth;
 	var height = conEl.clientHeight;
-	divEl.classList.add("rectangle");
+	divEl.classList.add("anno");
 
 	// position and size
 	divEl.style.left = (anno.x * 100) + "%";
 	divEl.style.top = (anno.y * 100) + "%";
-	divEl.style.width = (anno.w * width) + "px";
-	divEl.style.height = (anno.h * height) + "px";
 	divEl.style.borderColor = anno.color;
 	divEl.style.backgroundColor = color.fade(anno.color, .3);
+
+	if(anno.type == "circle"){
+		divEl.classList.add("circle");
+		var r = Math.min(width, height);
+		divEl.style.width = (anno.r * r) + "px";
+		divEl.style.height = (anno.r * r) + "px";
+		divEl.style.borderRadius = (anno.r * r) + "px";
+	}else{
+		divEl.classList.add("rectangle");
+		divEl.style.width = (anno.w * width) + "px";
+		divEl.style.height = (anno.h * height) + "px";
+	}
 
 	d.append(conEl, divEl);
 }
