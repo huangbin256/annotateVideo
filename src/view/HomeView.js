@@ -49,6 +49,25 @@ d.register("HomeView",{
 				value = isNaN(value * 1) ? -1 : value;
 				gotoTime.call(view, value);
 			}
+		},
+
+		"click; .btn-play":function(evt){
+			var view = this;
+			playOrStop.call(view);
+		},
+
+		"click; .btn-prev":function(evt){
+			var view = this;
+			var time = view._videoEl.currentTime;
+			time -= 10;
+			gotoTime.call(view, time);
+		},
+
+		"click; .btn-next":function(evt){
+			var view = this;
+			var time = view._videoEl.currentTime;
+			time += 10;
+			gotoTime.call(view, time);
 		}
 	}
 
@@ -69,6 +88,32 @@ function gotoTime(time){
 	var inputEl = d.first(view.el, ".controlbar input");
 	videoEl.currentTime = time;
 	inputEl.value = time;
+}
+
+function checkPlay(){
+	var view = this;
+	var paused = view._videoEl.paused;
+	var btnEl = d.first(view.el, ".btn-play"); 
+
+	if(paused){
+		btnEl.classList.add("stop");
+		btnEl.innerText = "Play";
+	}else{
+		btnEl.classList.remove("stop");
+		btnEl.innerText = "Stop";
+	}
+}
+
+function playOrStop(){
+	var view = this;
+	var paused = view._videoEl.paused;
+	if(paused){
+		view._videoEl.play();
+	}else{
+		view._videoEl.pause();
+	}
+
+	checkPlay.call(view);
 }
 // --------- /controls ---------//
 
