@@ -80,7 +80,7 @@ function showCurrentTime(){
 	var view = this;
 	var videoEl = view._videoEl;
 	var inputEl = d.first(view.el, ".controlbar input");
-	inputEl.value = videoEl.currentTime;
+	inputEl.value = videoEl.currentTime.toFixed(2);
 }
 
 function gotoTime(time){
