@@ -69,6 +69,13 @@ d.register("HomeView",{
 			var time = view._videoEl.currentTime;
 			time += 10;
 			gotoTime.call(view, time);
+		},
+
+		"changing; .time-progress":function(evt){
+			var view = this;
+			var duration = view._videoEl.duration;
+			var time = duration * evt.detail / 100;
+			gotoTime.call(view, time);
 		}
 	}
 
@@ -89,6 +96,8 @@ function gotoTime(time){
 	var inputEl = d.first(view.el, ".controlbar input");
 	videoEl.currentTime = time;
 	inputEl.value = time;
+	var timeProgressItem = d.first(view.el, ".time-progress .slide-item");
+	timeProgressItem.style.left = videoEl.currentTime / videoEl.duration * 100 + "%";
 }
 
 function checkPlay(){
