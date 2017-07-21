@@ -71,6 +71,16 @@ d.register("HomeView",{
 			gotoTime.call(view, time);
 		},
 
+		"click; .btn-start":function(evt){
+			var view = this;
+			gotoTime.call(view, 0);
+		},
+
+		"click; .btn-end":function(evt){
+			var view = this;
+			gotoTime.call(view, view._videoEl.duration);
+		},
+
 		"changing; .time-progress":function(evt){
 			var view = this;
 			var duration = view._videoEl.duration;
