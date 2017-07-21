@@ -98,16 +98,15 @@ function showCurrentTime(){
 	var videoEl = view._videoEl;
 	var inputEl = d.first(view.el, ".controlbar input");
 	inputEl.value = videoEl.currentTime.toFixed(2);
+
+	var timeProgressItem = d.first(view.el, ".time-progress .slide-item");
+	timeProgressItem.style.left = videoEl.currentTime / videoEl.duration * 100 + "%";
 }
 
 function gotoTime(time){
 	var view = this;
 	var videoEl = view._videoEl;
-	var inputEl = d.first(view.el, ".controlbar input");
 	videoEl.currentTime = time;
-	inputEl.value = videoEl.currentTime.toFixed(2);
-	var timeProgressItem = d.first(view.el, ".time-progress .slide-item");
-	timeProgressItem.style.left = videoEl.currentTime / videoEl.duration * 100 + "%";
 }
 
 function checkPlay(){
