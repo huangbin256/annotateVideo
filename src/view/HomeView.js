@@ -29,6 +29,14 @@ d.register("HomeView",{
 				}
 			}
 		});
+
+		d.on(view._videoEl, "play", function(evt){
+			checkPlay.call(view);
+		});
+
+		d.on(view._videoEl, "pause", function(evt){
+			checkPlay.call(view);
+		});
 	},
 
 	events: {
@@ -131,8 +139,6 @@ function playOrStop(){
 	}else{
 		view._videoEl.pause();
 	}
-
-	checkPlay.call(view);
 }
 // --------- /controls ---------//
 
