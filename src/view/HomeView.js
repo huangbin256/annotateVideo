@@ -95,7 +95,7 @@ function gotoTime(time){
 	var videoEl = view._videoEl;
 	var inputEl = d.first(view.el, ".controlbar input");
 	videoEl.currentTime = time;
-	inputEl.value = time;
+	inputEl.value = videoEl.currentTime.toFixed(2);
 	var timeProgressItem = d.first(view.el, ".time-progress .slide-item");
 	timeProgressItem.style.left = videoEl.currentTime / videoEl.duration * 100 + "%";
 }
