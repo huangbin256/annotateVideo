@@ -18,6 +18,9 @@ d.register("HomeView",{
 		var view = this; // best practice, set the view variable first.	
 		view._videoEl = d.first("video");
 
+		// show default progress
+		showCurrentTime.call(view);
+
 		d.on(view._videoEl, "timeupdate", function(evt){
 			var videoEl = evt.target;
 			showCurrentTime.call(view);
