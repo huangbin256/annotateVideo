@@ -21,6 +21,10 @@ d.register("HomeView",{
 		// show default progress
 		showCurrentTime.call(view);
 
+		// show volume
+		var volumeProgressItem = d.first(view.el, ".volume-progress .slide-item");
+		volumeProgressItem.style.left = view._videoEl.volume * 100 + "%";
+
 		d.on(view._videoEl, "timeupdate", function(evt){
 			var videoEl = evt.target;
 			showCurrentTime.call(view);
@@ -97,6 +101,11 @@ d.register("HomeView",{
 			var duration = view._videoEl.duration;
 			var time = duration * evt.detail / 100;
 			gotoTime.call(view, time);
+		},
+
+		"changing; .volume-progress":function(evt){
+			var view = this;
+			view._videoEl.volume = evt.detail / 100;
 		}
 	}
 
