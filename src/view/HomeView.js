@@ -205,10 +205,11 @@ function clearAnnotation(){
 function showAnnotation(anno){
 	var view = this;
 	var conEl = d.first(view.el, ".annos-con");
-	var divEl = document.createElement("div");
+	var divEl = render("HomeView-annotation");
 	var width = conEl.clientWidth;
 	var height = conEl.clientHeight;
-	divEl.classList.add("anno");
+	d.append(conEl, divEl);
+	divEl = d.first(conEl, ".anno:last-child");
 
 	// position and size
 	divEl.style.left = (anno.x * 100) + "%";
@@ -228,6 +229,10 @@ function showAnnotation(anno){
 		divEl.style.height = (anno.h * height) + "px";
 	}
 
-	d.append(conEl, divEl);
+}
+
+function isEditMode(){
+	var view = this;
+	return view._videoEl.paused;
 }
 // --------- /annotation ---------//
