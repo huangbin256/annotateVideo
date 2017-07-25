@@ -55,6 +55,7 @@ d.register("HomeView",{
 			var anno = generateAnnotation.call(view, videoEl.currentTime, type);
 			addAnnotation.call(view, anno);
 			showAnnotation.call(view, anno);
+			view._videoEl.pause();
 		},
 
 		"keyup; .time-values":function(evt){
