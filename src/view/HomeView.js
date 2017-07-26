@@ -312,7 +312,7 @@ function showAnnotation(anno){
 	// position and size
 	divEl.style.left = (anno.x * 100) + "%";
 	divEl.style.top = (anno.y * 100) + "%";
-	divEl.style.borderColor = anno.color;
+	divEl.style.color = anno.color;
 	divEl.style.backgroundColor = color.fade(anno.color, .3);
 
 	if(anno.type == "circle"){
