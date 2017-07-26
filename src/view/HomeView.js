@@ -25,6 +25,7 @@ d.register("HomeView",{
 		var volumeProgressItem = d.first(view.el, ".volume-progress .slide-item");
 		volumeProgressItem.style.left = view._videoEl.volume * 100 + "%";
 
+		// --------- video events ---------//
 		d.on(view._videoEl, "timeupdate", function(evt){
 			var videoEl = evt.target;
 			showCurrentTime.call(view);
@@ -44,6 +45,8 @@ d.register("HomeView",{
 		d.on(view._videoEl, "pause", function(evt){
 			checkPlay.call(view);
 		});
+		// --------- /video events ---------//
+
 	},
 
 	events: {
@@ -107,6 +110,100 @@ d.register("HomeView",{
 		"changing; .volume-progress":function(evt){
 			var view = this;
 			view._videoEl.volume = evt.detail / 100;
+		},
+
+		"mousedown; .resizer":function(evt){
+			var view = this;
+			view._dragEl = evt.selectTarget;
+			view._lastPos = {
+				x: evt.pageX,
+				y: evt.pageY
+			};
+		},
+	},
+	docEvents: {
+		"mousemove":function(evt){
+			var view = this;
+			if(view._dragEl){
+				if(view._dragEl.classList.contains("resizer")){
+					var resizerEl = view._dragEl;
+					var annoEl = d.closest(view._dragEl, ".anno");
+					var deltaX = evt.pageX - view._lastPos.x;
+					var deltaY = evt.pageY - view._lastPos.y;
+					var width = view._videoEl.clientWidth;
+					var height = view._videoEl.clientHeight;
+					var left = null, top = null, w = null, h = null;
+					var ox = annoEl.offsetLeft;
+					var oy = annoEl.offsetTop;
+					var ow = annoEl.offsetWidth;
+					var oh = annoEl.offsetHeight;
+					if(resizerEl.classList.contains("corner")){
+						if(resizerEl.classList.contains("c-tl")){
+							left = (ox + deltaX) / width;
+							top = (oy + deltaY) / height;
+							w = ow - deltaX;
+							h = oh - deltaY;
+						}else if(resizerEl.classList.contains("c-tr")){
+							top = (oy + deltaY) / height;
+							w = ow + deltaX;
+							h = oh - deltaY;
+						}else if(resizerEl.classList.contains("c-br")){
+							w = ow + deltaX;
+							h = oh + deltaY;
+						}else if(resizerEl.classList.contains("c-bl")){
+							left = (ox + deltaX) / width;
+							w = ow - deltaX;
+							h = oh + deltaY;
+						}
+					}else{
+						if(resizerEl.classList.contains("l-l")){
+							left = (ox + deltaX) / width;
+							w = ow - deltaX;
+						}else if(resizerEl.classList.contains("l-t")){
+							top = (oy + deltaY) / height;
+							h = oh - deltaY;
+						}else if(resizerEl.classList.contains("l-r")){
+							w = ow + deltaX;
+						}else if(resizerEl.classList.contains("l-b")){
+							h = oh + deltaY;
+						}
+					}
+
+					if(left){
+						left = left < 0 ? 0 : left;
+						annoEl.style.left = left * 100 + "%";
+					}
+
+					if(top){
+						top = top < 0 ? 0 : top;
+						annoEl.style.top = top * 100 + "%";
+					}
+
+					if(w){
+						w = w < 0 ? 0 : w;
+						annoEl.style.width = w + "px";
+					}
+
+					if(h){
+						h = h < 0 ? 0 : h;
+						annoEl.style.height = h + "px";
+					}
+				}
+			}
+
+
+			view._lastPos = {
+				x: evt.pageX,
+				y: evt.pageY
+			};
+		},
+
+		"mouseup":function(evt){
+			var view = this;
+			if(view._dragEl){
+				view._dragEl = null;
+				view._lastPos = null;
+			}
 		}
 	}
 
