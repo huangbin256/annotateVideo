@@ -120,23 +120,35 @@ d.register("HomeView",{
 				y: evt.pageY
 			};
 		},
+
+		"mousedown; .anno":function(evt){
+			var view = this;
+			if(!view._dragEl){
+				view._dragEl = evt.selectTarget;
+				view._lastPos = {
+					x: evt.pageX,
+					y: evt.pageY
+				};
+			}
+		}
 	},
 	docEvents: {
 		"mousemove":function(evt){
 			var view = this;
 			if(view._dragEl){
+				var deltaX = evt.pageX - view._lastPos.x;
+				var deltaY = evt.pageY - view._lastPos.y;
+				var width = view._videoEl.clientWidth;
+				var height = view._videoEl.clientHeight;
+
 				if(view._dragEl.classList.contains("resizer")){
 					var resizerEl = view._dragEl;
 					var annoEl = d.closest(view._dragEl, ".anno");
-					var deltaX = evt.pageX - view._lastPos.x;
-					var deltaY = evt.pageY - view._lastPos.y;
-					var width = view._videoEl.clientWidth;
-					var height = view._videoEl.clientHeight;
-					var left = null, top = null, w = null, h = null;
 					var ox = annoEl.offsetLeft;
 					var oy = annoEl.offsetTop;
 					var ow = annoEl.offsetWidth;
 					var oh = annoEl.offsetHeight;
+					var left = null, top = null, w = null, h = null;
 					if(resizerEl.classList.contains("corner")){
 						if(resizerEl.classList.contains("c-tl")){
 							left = (ox + deltaX) / width;
@@ -188,6 +200,22 @@ d.register("HomeView",{
 						h = h < 0 ? 0 : h;
 						annoEl.style.height = h + "px";
 					}
+				}else if(view._dragEl.classList.contains("anno")){
+					var annoEl = view._dragEl;
+					var ox = annoEl.offsetLeft;
+					var oy = annoEl.offsetTop;
+					var ow = annoEl.offsetWidth;
+					var oh = annoEl.offsetHeight;
+					var left = (ox + deltaX) / width;
+					var top = (oy + deltaY) / height;
+					
+					left = left < 0 ? 0 : left;
+					left = left * width + ow > width ? (width - ow) / width : left;
+					annoEl.style.left = left * 100 + "%";
+					
+					top = top < 0 ? 0 : top;
+					top = top * height + oh > height ? (height - oh) / height : top;
+					annoEl.style.top = top * 100 + "%";
 				}
 			}
 
