@@ -148,58 +148,71 @@ d.register("HomeView",{
 					var oy = annoEl.offsetTop;
 					var ow = annoEl.offsetWidth;
 					var oh = annoEl.offsetHeight;
-					var left = null, top = null, w = null, h = null;
+					var x1 = ox, y1 = oy, x2 = x1 + ow, y2 = y1 + oh;
 					if(resizerEl.classList.contains("corner")){
 						if(resizerEl.classList.contains("c-tl")){
-							left = (ox + deltaX) / width;
-							top = (oy + deltaY) / height;
-							w = ow - deltaX;
-							h = oh - deltaY;
+							x1 += deltaX;
+							y1 += deltaY;
+
+							x1 = x1 < 0 ? 0 : x1;
+							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+							y1 = y1 < 0 ? 0 : y1;
+							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
 						}else if(resizerEl.classList.contains("c-tr")){
-							top = (oy + deltaY) / height;
-							w = ow + deltaX;
-							h = oh - deltaY;
+							x2 += deltaX;
+							y1 += deltaY;
+
+							x2 = x2 < x1 ? x1 : x2;
+							x2 = x2 > width ? width : x2;
+							y1 = y1 < 0 ? 0 : y1;
+							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
 						}else if(resizerEl.classList.contains("c-br")){
-							w = ow + deltaX;
-							h = oh + deltaY;
+							x2 += deltaX;
+							y2 += deltaY;
+
+							x2 = x2 < x1 ? x1 : x2;
+							x2 = x2 > width ? width : x2;
+							y2 = y2 < y1 ? y1 : y2;
+							y2 = y2 > height ? height : y2;
 						}else if(resizerEl.classList.contains("c-bl")){
-							left = (ox + deltaX) / width;
-							w = ow - deltaX;
-							h = oh + deltaY;
+							x1 += deltaX;
+							y2 += deltaY;
+
+							x1 = x1 < 0 ? 0 : x1;
+							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+							y2 = y2 < y1 ? y1 : y2;
+							y2 = y2 > height ? height : y2;
 						}
 					}else{
 						if(resizerEl.classList.contains("l-l")){
-							left = (ox + deltaX) / width;
-							w = ow - deltaX;
+							x1 += deltaX;
+
+							x1 = x1 < 0 ? 0 : x1;
+							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
 						}else if(resizerEl.classList.contains("l-t")){
-							top = (oy + deltaY) / height;
-							h = oh - deltaY;
+							y1 +=+ deltaY;
+
+							y1 = y1 < 0 ? 0 : y1;
+							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
 						}else if(resizerEl.classList.contains("l-r")){
-							w = ow + deltaX;
+							x2 += deltaX;
+
+							x2 = x2 < x1 ? x1 : x2;
+							x2 = x2 > width ? width : x2;
 						}else if(resizerEl.classList.contains("l-b")){
-							h = oh + deltaY;
+							y2 +=+ deltaY;
+
+							y2 = y2 < y1 ? y1 : y2;
+							y2 = y2 > height ? height : y2;
 						}
 					}
 
-					if(left){
-						left = left < 0 ? 0 : left;
-						annoEl.style.left = left * 100 + "%";
-					}
 
-					if(top){
-						top = top < 0 ? 0 : top;
-						annoEl.style.top = top * 100 + "%";
-					}
+					annoEl.style.left = (x1 / width * 100) + "%";
+					annoEl.style.top = (y1 / height * 100)  + "%";
+					annoEl.style.width = (x2 - x1) + "px";
+					annoEl.style.height = (y2 - y1) + "px";
 
-					if(w){
-						w = w < 0 ? 0 : w;
-						annoEl.style.width = w + "px";
-					}
-
-					if(h){
-						h = h < 0 ? 0 : h;
-						annoEl.style.height = h + "px";
-					}
 				}else if(view._dragEl.classList.contains("anno")){
 					var annoEl = view._dragEl;
 					var ox = annoEl.offsetLeft;
