@@ -27,7 +27,17 @@ module.exports = {
 	},
 
 
-	entityRef: entityRef
+	entityRef: entityRef,
+
+	random: function(length){
+		length = length || 6;
+		var arr = [];
+		var base = Math.pow(10, length);
+		for(var i = 0; i < length; i++){
+			arr.push(parseInt(Math.random() * 10));
+		}
+		return arr.join("");
+	}
 };
 
 

@@ -4,6 +4,7 @@ var d3 = window.d3;
 
 var render = require("js-app/render.js").render;
 var color = require("js-app/color.js");
+var utils = require("js-app/utils.js");
 // key would be time
 // annotation: {x: 1, y: 1}
 var _annotations = {};
@@ -242,6 +243,16 @@ d.register("HomeView",{
 		"mouseup":function(evt){
 			var view = this;
 			if(view._dragEl){
+				var annoEl = null;
+				if(view._dragEl.classList.contains("resizer")){
+					var resizerEl = view._dragEl;
+					annoEl = d.closest(view._dragEl, ".anno");
+				}else if(view._dragEl.classList.contains("anno")){
+					annoEl = view._dragEl;
+				}
+
+				updateAnnotation.call(view, annoEl);
+
 				view._dragEl = null;
 				view._lastPos = null;
 			}
@@ -300,8 +311,10 @@ function generateAnnotation(time, type){
 	var y = Math.random();
 	var w = Math.random() * (1 - x);
 	var h = Math.random() * (1 - y);
+	var id = utils.random();
 
 	var obj = {
+		id: id,
 		x: x,
 		y: y,
 		time: time,
@@ -330,6 +343,48 @@ function addAnnotation(newAnno){
 	_annotations[time] = annos;
 }
 
+function updateAnnotation(annoEl){
+	var view = this;
+	var width = view._videoEl.clientWidth;
+	var height = view._videoEl.clientHeight;
+	var newAnno = {
+		id: annoEl.getAttribute("data-anno-id"),
+	};
+	var updated = false;
+	for(var time in _annotations){
+		var annos =  getAnnotations.call(view, time);
+		var index = -1;
+		if(annos){
+			for(var i = 0; i < annos.length; i++){
+				var a = annos[i];
+				if(a.id == newAnno.id){
+					index = i;
+					updated = true;
+					break;
+				}
+			}
+		}
+
+		if(updated){
+			newAnno = Object.assign(newAnno, annos[index]);
+			var ox = annoEl.offsetLeft;
+			var oy = annoEl.offsetTop;
+			var ow = annoEl.offsetWidth;
+			var oh = annoEl.offsetHeight;
+			newAnno.x = ox / width;
+			newAnno.y = oy / height;
+			if(newAnno.type == "circle"){
+				newAnno.r = ow / width;
+			}else{
+				newAnno.w = annoEl.offsetWidth / width;
+				newAnno.h = annoEl.offsetHeight / height;
+			}
+			annos.splice(index, 1, newAnno);
+			break;
+		}
+	}
+}
+
 function getAnnotations(time){
 	var view = this;
 	var time = parseInt(time);
@@ -344,7 +399,7 @@ function clearAnnotation(){
 function showAnnotation(anno){
 	var view = this;
 	var conEl = d.first(view.el, ".annos-con");
-	var divEl = render("HomeView-annotation");
+	var divEl = render("HomeView-annotation", anno);
 	var width = conEl.clientWidth;
 	var height = conEl.clientHeight;
 	d.append(conEl, divEl);
