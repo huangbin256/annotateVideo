@@ -256,6 +256,15 @@ d.register("HomeView",{
 				view._dragEl = null;
 				view._lastPos = null;
 			}
+		},
+
+		"keyup": function(evt){
+			var view = this;
+			// delete key
+			if(evt.keyCode == 8){
+				var annoEl = d.first(view.el, ".anno:focus");
+				deleteAnnotation.call(view, annoEl);
+			}
 		}
 	}
 
@@ -350,7 +359,7 @@ function updateAnnotation(annoEl){
 	var newAnno = {
 		id: annoEl.getAttribute("data-anno-id"),
 	};
-	var updated = false;
+	var exist = false;
 	for(var time in _annotations){
 		var annos =  getAnnotations.call(view, time);
 		var index = -1;
@@ -359,13 +368,13 @@ function updateAnnotation(annoEl){
 				var a = annos[i];
 				if(a.id == newAnno.id){
 					index = i;
-					updated = true;
+					exist = true;
 					break;
 				}
 			}
 		}
 
-		if(updated){
+		if(exist){
 			newAnno = Object.assign(newAnno, annos[index]);
 			var ox = annoEl.offsetLeft;
 			var oy = annoEl.offsetTop;
@@ -383,6 +392,40 @@ function updateAnnotation(annoEl){
 			break;
 		}
 	}
+}
+
+function deleteAnnotation(annoEl){
+	var view = this;
+	if(!annoEl){
+		return ;
+	}
+	var id = annoEl.getAttribute("data-anno-id");
+	var exist = false;
+	for(var time in _annotations){
+		var annos =  getAnnotations.call(view, time);
+		var index = -1;
+		if(annos){
+			for(var i = 0; i < annos.length; i++){
+				var a = annos[i];
+				if(a.id == id){
+					index = i;
+					exist = true;
+					break;
+				}
+			}
+		}
+
+		if(exist){
+			annos.splice(index, 1);
+			break;
+		}
+	}
+
+	d.remove(annoEl);
+}
+
+function getAnnoByEl(){
+
 }
 
 function getAnnotations(time){
