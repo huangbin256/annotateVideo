@@ -150,15 +150,28 @@ d.register("HomeView",{
 					var ow = annoEl.offsetWidth;
 					var oh = annoEl.offsetHeight;
 					var x1 = ox, y1 = oy, x2 = x1 + ow, y2 = y1 + oh;
+
+					var isCircle = annoEl.classList.contains("circle");
+					if(isCircle){
+						var dis = Math.max(Math.abs(deltaX), Math.abs(deltaY));
+						deltaX = deltaX > 0 ? dis : -1 * dis;
+						deltaY = deltaY > 0 ? dis : -1 * dis;
+					}
+
 					if(resizerEl.classList.contains("corner")){
 						if(resizerEl.classList.contains("c-tl")){
 							x1 += deltaX;
 							y1 += deltaY;
-
 							x1 = x1 < 0 ? 0 : x1;
 							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
 							y1 = y1 < 0 ? 0 : y1;
 							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+
+							if(isCircle){
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x1 = x2 - dis;
+								y1 = y2 - dis;
+							}
 						}else if(resizerEl.classList.contains("c-tr")){
 							x2 += deltaX;
 							y1 += deltaY;
@@ -167,6 +180,12 @@ d.register("HomeView",{
 							x2 = x2 > width ? width : x2;
 							y1 = y1 < 0 ? 0 : y1;
 							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+
+							if(isCircle){
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x2 = x1 + dis;
+								y1 = y2 - dis;
+							}
 						}else if(resizerEl.classList.contains("c-br")){
 							x2 += deltaX;
 							y2 += deltaY;
@@ -175,6 +194,12 @@ d.register("HomeView",{
 							x2 = x2 > width ? width : x2;
 							y2 = y2 < y1 ? y1 : y2;
 							y2 = y2 > height ? height : y2;
+
+							if(isCircle){
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x2 = x1 + dis;
+								y2 = y1 + dis;
+							}
 						}else if(resizerEl.classList.contains("c-bl")){
 							x1 += deltaX;
 							y2 += deltaY;
@@ -183,6 +208,12 @@ d.register("HomeView",{
 							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
 							y2 = y2 < y1 ? y1 : y2;
 							y2 = y2 > height ? height : y2;
+
+							if(isCircle){
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x1 = x2 - dis;
+								y2 = y1 + dis;
+							}
 						}
 					}else{
 						if(resizerEl.classList.contains("l-l")){
@@ -190,29 +221,76 @@ d.register("HomeView",{
 
 							x1 = x1 < 0 ? 0 : x1;
 							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+
+							if(isCircle){
+								y1 += deltaX;
+
+								y1 = y1 < 0 ? 0 : y1;
+								y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x1 = x2 - dis;
+								y1 = y2 - dis;
+							}
 						}else if(resizerEl.classList.contains("l-t")){
 							y1 +=+ deltaY;
 
 							y1 = y1 < 0 ? 0 : y1;
 							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+
+							if(isCircle){
+								x1 += deltaY;
+
+								x1 = x1 < 0 ? 0 : x1;
+								x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x1 = x2 - dis;
+								y1 = y2 - dis;
+							}
 						}else if(resizerEl.classList.contains("l-r")){
 							x2 += deltaX;
 
 							x2 = x2 < x1 ? x1 : x2;
 							x2 = x2 > width ? width : x2;
+
+							if(isCircle){
+								y2 += deltaX;
+
+								y2 = y2 < y1 ? y1 : y2;
+								y2 = y2 > height ? height : y2;
+
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x2 = x1 + dis;
+								y2 = y1 + dis;
+							}
 						}else if(resizerEl.classList.contains("l-b")){
-							y2 +=+ deltaY;
+							y2 += deltaY;
 
 							y2 = y2 < y1 ? y1 : y2;
 							y2 = y2 > height ? height : y2;
+
+							if(isCircle){
+								x2 += deltaY;
+
+								x2 = x2 < x1 ? x1 : x2;
+								x2 = x2 > width ? width : x2;
+
+								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
+								x2 = x1 + dis;
+								y2 = y1 + dis;
+							}
 						}
 					}
-
 
 					annoEl.style.left = (x1 / width * 100) + "%";
 					annoEl.style.top = (y1 / height * 100)  + "%";
 					annoEl.style.width = (x2 - x1) + "px";
 					annoEl.style.height = (y2 - y1) + "px";
+
+					if(isCircle){
+						annoEl.style.borderRadius = (x2 - x1) + "px";
+					}
 
 				}else if(view._dragEl.classList.contains("anno")){
 					var annoEl = view._dragEl;
