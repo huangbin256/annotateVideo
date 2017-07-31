@@ -410,7 +410,7 @@ function generateAnnotation(time, type){
 	};
 
 	if(type == "circle"){
-		obj.r = w;
+		obj.r = Math.min(w, h);
 	}else{
 		obj.w = w;
 		obj.h = h;
