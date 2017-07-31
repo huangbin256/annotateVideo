@@ -6,8 +6,8 @@ var render = require("js-app/render.js").render;
 var color = require("js-app/color.js");
 var utils = require("js-app/utils.js");
 // key would be time
-// annotation: {x: 1, y: 1}
-var _annotations = {};
+// annotation: {id: 1, time: 1, start: {x: 1, y: 1}, end: {x: 1, y: 1}}
+var _annotations = [];
 
 
 d.register("HomeView",{
@@ -31,7 +31,7 @@ d.register("HomeView",{
 			var videoEl = evt.target;
 			showCurrentTime.call(view);
 			clearAnnotation.call(view);
-			var annos = getAnnotations.call(view, videoEl.currentTime);
+			var annos = getValidAnnotations.call(view, videoEl.currentTime);
 			if(annos.length > 0){
 				for(var i = 0; i < annos.length; i++){
 					showAnnotation.call(view, annos[i]);
@@ -402,18 +402,21 @@ function generateAnnotation(time, type){
 
 	var obj = {
 		id: id,
-		x: x,
-		y: y,
-		time: time,
-		type: type,
+		type: type
+	}
+
+	obj.start = {
+ 		x: x,
+ 		y: y,
+ 		time: time,
 		color: color.random()
 	};
 
 	if(type == "circle"){
-		obj.r = Math.min(w, h);
+		obj.start.r = Math.min(w, h);
 	}else{
-		obj.w = w;
-		obj.h = h;
+		obj.start.w = w;
+		obj.start.h = h;
 	}
 
 	return obj;
@@ -421,13 +424,7 @@ function generateAnnotation(time, type){
 
 function addAnnotation(newAnno){
 	var view = this;
-	var time = parseInt(newAnno.time);
-	var annos = getAnnotations.call(view, newAnno.time);
-	annos.push(newAnno);
-	annos.sort(function(a, b){
-		return a.time > b.time ? 1 : -1;
-	});
-	_annotations[time] = annos;
+	_annotations.push(newAnno);
 }
 
 function updateAnnotation(annoEl){
@@ -437,39 +434,26 @@ function updateAnnotation(annoEl){
 	var newAnno = {
 		id: annoEl.getAttribute("data-anno-id"),
 	};
-	var exist = false;
-	for(var time in _annotations){
-		var annos =  getAnnotations.call(view, time);
-		var index = -1;
-		if(annos){
-			for(var i = 0; i < annos.length; i++){
-				var a = annos[i];
-				if(a.id == newAnno.id){
-					index = i;
-					exist = true;
-					break;
-				}
-			}
-		}
+	
+	var index = getIndexByEl.call(view, annoEl);
+	var anno = _annotations[index];
 
-		if(exist){
-			newAnno = Object.assign(newAnno, annos[index]);
-			var ox = annoEl.offsetLeft;
-			var oy = annoEl.offsetTop;
-			var ow = annoEl.offsetWidth;
-			var oh = annoEl.offsetHeight;
-			newAnno.x = ox / width;
-			newAnno.y = oy / height;
-			if(newAnno.type == "circle"){
-				newAnno.r = ow / width;
-			}else{
-				newAnno.w = annoEl.offsetWidth / width;
-				newAnno.h = annoEl.offsetHeight / height;
-			}
-			annos.splice(index, 1, newAnno);
-			break;
-		}
+	
+	newAnno = Object.assign(newAnno, anno);
+	var ox = annoEl.offsetLeft;
+	var oy = annoEl.offsetTop;
+	var ow = annoEl.offsetWidth;
+	var oh = annoEl.offsetHeight;
+	var frame = newAnno.start;
+	frame.x = ox / width;
+	frame.y = oy / height;
+	if(newAnno.type == "circle"){
+		frame.r = ow / width;
+	}else{
+		frame.w = annoEl.offsetWidth / width;
+		frame.h = annoEl.offsetHeight / height;
 	}
+	_annotations.splice(index, 1, newAnno);
 }
 
 function deleteAnnotation(annoEl){
@@ -478,38 +462,48 @@ function deleteAnnotation(annoEl){
 		return ;
 	}
 	var id = annoEl.getAttribute("data-anno-id");
-	var exist = false;
-	for(var time in _annotations){
-		var annos =  getAnnotations.call(view, time);
-		var index = -1;
-		if(annos){
-			for(var i = 0; i < annos.length; i++){
-				var a = annos[i];
-				if(a.id == id){
-					index = i;
-					exist = true;
-					break;
-				}
-			}
-		}
-
-		if(exist){
-			annos.splice(index, 1);
-			break;
-		}
-	}
-
+	var index = getIndexByEl.call(view, annoEl);
+	_annotations.splice(index, 1);
 	d.remove(annoEl);
 }
 
-function getAnnoByEl(){
 
+function getIndexByEl(annoEl){
+	var view = this;
+	var id = annoEl.getAttribute("data-anno-id");
+	for(var i = 0; i < _annotations.length; i++){
+		var a = _annotations[i];
+		if(a.id == id){
+			return i;
+		}
+	}
+	return -1;
 }
 
-function getAnnotations(time){
+function getAnnoByEl(annoEl){
 	var view = this;
-	var time = parseInt(time);
-	return _annotations[time] || [];
+	return _annotations[getIndexByEl.call(view, annoEl)];
+}
+
+function getValidAnnotations(time){
+	var view = this;
+	var validAnnos = [];
+	for(var i = 0; i < _annotations.length; i++){
+		var a = _annotations[i];
+		var startFrame = a.start;
+		var endFrame = a.end;
+		if(endFrame){
+			if(startFrame.time <= time && endFrame.time >= time){
+				validAnnos.push(a);
+			}
+		}else{
+			if(startFrame.time <= time && startFrame.time + 1 >= time){
+				validAnnos.push(a);
+			}
+		}
+	}
+
+	return validAnnos;
 }
 
 function clearAnnotation(){
@@ -526,22 +520,24 @@ function showAnnotation(anno){
 	d.append(conEl, divEl);
 	divEl = d.first(conEl, ".anno:last-child");
 
+	var frame = anno.start;
+
 	// position and size
-	divEl.style.left = (anno.x * 100) + "%";
-	divEl.style.top = (anno.y * 100) + "%";
-	divEl.style.color = anno.color;
-	divEl.style.backgroundColor = color.fade(anno.color, .3);
+	divEl.style.left = (frame.x * 100) + "%";
+	divEl.style.top = (frame.y * 100) + "%";
+	divEl.style.color = frame.color;
+	divEl.style.backgroundColor = color.fade(frame.color, .3);
 
 	if(anno.type == "circle"){
 		divEl.classList.add("circle");
 		var r = Math.min(width, height);
-		divEl.style.width = (anno.r * r) + "px";
-		divEl.style.height = (anno.r * r) + "px";
-		divEl.style.borderRadius = (anno.r * r) + "px";
+		divEl.style.width = (frame.r * r) + "px";
+		divEl.style.height = (frame.r * r) + "px";
+		divEl.style.borderRadius = (frame.r * r) + "px";
 	}else{
 		divEl.classList.add("rectangle");
-		divEl.style.width = (anno.w * width) + "px";
-		divEl.style.height = (anno.h * height) + "px";
+		divEl.style.width = (frame.w * width) + "px";
+		divEl.style.height = (frame.h * height) + "px";
 	}
 
 }
