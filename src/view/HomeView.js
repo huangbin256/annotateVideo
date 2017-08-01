@@ -30,11 +30,15 @@ d.register("HomeView",{
 		d.on(view._videoEl, "timeupdate", function(evt){
 			var videoEl = evt.target;
 			showCurrentTime.call(view);
-			clearAnnotation.call(view);
-			var annos = getValidAnnotations.call(view, videoEl.currentTime);
-			if(annos.length > 0){
-				for(var i = 0; i < annos.length; i++){
-					showAnnotation.call(view, annos[i]);
+
+			// update annotation in video
+			if(isPlay.call(view)){
+				clearAnnotation.call(view);
+				var annos = getValidAnnotations.call(view, videoEl.currentTime);
+				if(annos.length > 0){
+					for(var i = 0; i < annos.length; i++){
+						showAnnotation.call(view, annos[i]);
+					}
 				}
 			}
 		});
@@ -389,6 +393,11 @@ function playOrStop(){
 		view._videoEl.pause();
 	}
 }
+
+function isPlay(){
+	var view = this;
+	return !view._videoEl.paused;
+}
 // --------- /controls ---------//
 
 // --------- annotation ---------//
@@ -542,8 +551,4 @@ function showAnnotation(anno){
 
 }
 
-function isEditMode(){
-	var view = this;
-	return view._videoEl.paused;
-}
 // --------- /annotation ---------//
