@@ -3,11 +3,7 @@ var Gtx = window.Gtx;
 var d3 = window.d3;
 
 var render = require("js-app/render.js").render;
-var color = require("js-app/color.js");
-var utils = require("js-app/utils.js");
-// key would be time
-// annotation: {id: 1, time: 1, start: {x: 1, y: 1}, end: {x: 1, y: 1}}
-var _annotations = [];
+var VideoAnnotation = require("js-app/VideoAnnotation.js");
 
 
 d.register("HomeView",{
@@ -18,6 +14,7 @@ d.register("HomeView",{
 	postDisplay: function(){
 		var view = this; // best practice, set the view variable first.	
 		view._videoEl = d.first("video");
+		view._va = new VideoAnnotation(d.first(".video-con"));
 
 		// show default progress
 		showCurrentTime.call(view);
@@ -33,13 +30,7 @@ d.register("HomeView",{
 
 			// update annotation in video
 			if(isPlay.call(view)){
-				clearAnnotation.call(view);
-				var annos = getValidAnnotations.call(view, videoEl.currentTime);
-				if(annos.length > 0){
-					for(var i = 0; i < annos.length; i++){
-						showAnnotation.call(view, annos[i]);
-					}
-				}
+				view._va.refreshAnnotations();
 			}
 		});
 
@@ -60,9 +51,9 @@ d.register("HomeView",{
 			var type = evt.selectTarget.getAttribute("data-type");
 			var videoEl = view._videoEl;
 			videoEl.pause();
-			var anno = generateAnnotation.call(view, videoEl.currentTime, type);
-			addAnnotation.call(view, anno);
-			showAnnotation.call(view, anno);
+			var anno = view._va.generateAnnotation(videoEl.currentTime, type);
+			view._va.addAnnotation(anno);
+			view._va.showAnnotation(anno);
 			view._videoEl.pause();
 		},
 
@@ -333,7 +324,7 @@ d.register("HomeView",{
 					annoEl = view._dragEl;
 				}
 
-				updateAnnotation.call(view, annoEl);
+				view._va.updateAnnotation(annoEl);
 
 				view._dragEl = null;
 				view._lastPos = null;
@@ -345,7 +336,7 @@ d.register("HomeView",{
 			// delete key
 			if(evt.keyCode == 8){
 				var annoEl = d.first(view.el, ".anno:focus");
-				deleteAnnotation.call(view, annoEl);
+				view._va.deleteAnnotation(annoEl);
 			}
 		}
 	}
@@ -399,156 +390,3 @@ function isPlay(){
 	return !view._videoEl.paused;
 }
 // --------- /controls ---------//
-
-// --------- annotation ---------//
-function generateAnnotation(time, type){
-	var view = this;
-	var x = Math.random();
-	var y = Math.random();
-	var w = Math.random() * (1 - x);
-	var h = Math.random() * (1 - y);
-	var id = utils.random();
-
-	var obj = {
-		id: id,
-		type: type
-	}
-
-	obj.start = {
- 		x: x,
- 		y: y,
- 		time: time,
-		color: color.random()
-	};
-
-	if(type == "circle"){
-		obj.start.r = Math.min(w, h);
-	}else{
-		obj.start.w = w;
-		obj.start.h = h;
-	}
-
-	return obj;
-}
-
-function addAnnotation(newAnno){
-	var view = this;
-	_annotations.push(newAnno);
-}
-
-function updateAnnotation(annoEl){
-	var view = this;
-	var width = view._videoEl.clientWidth;
-	var height = view._videoEl.clientHeight;
-	var newAnno = {
-		id: annoEl.getAttribute("data-anno-id"),
-	};
-	
-	var index = getIndexByEl.call(view, annoEl);
-	var anno = _annotations[index];
-
-	
-	newAnno = Object.assign(newAnno, anno);
-	var ox = annoEl.offsetLeft;
-	var oy = annoEl.offsetTop;
-	var ow = annoEl.offsetWidth;
-	var oh = annoEl.offsetHeight;
-	var frame = newAnno.start;
-	frame.x = ox / width;
-	frame.y = oy / height;
-	if(newAnno.type == "circle"){
-		frame.r = ow / width;
-	}else{
-		frame.w = annoEl.offsetWidth / width;
-		frame.h = annoEl.offsetHeight / height;
-	}
-	_annotations.splice(index, 1, newAnno);
-}
-
-function deleteAnnotation(annoEl){
-	var view = this;
-	if(!annoEl){
-		return ;
-	}
-	var id = annoEl.getAttribute("data-anno-id");
-	var index = getIndexByEl.call(view, annoEl);
-	_annotations.splice(index, 1);
-	d.remove(annoEl);
-}
-
-
-function getIndexByEl(annoEl){
-	var view = this;
-	var id = annoEl.getAttribute("data-anno-id");
-	for(var i = 0; i < _annotations.length; i++){
-		var a = _annotations[i];
-		if(a.id == id){
-			return i;
-		}
-	}
-	return -1;
-}
-
-function getAnnoByEl(annoEl){
-	var view = this;
-	return _annotations[getIndexByEl.call(view, annoEl)];
-}
-
-function getValidAnnotations(time){
-	var view = this;
-	var validAnnos = [];
-	for(var i = 0; i < _annotations.length; i++){
-		var a = _annotations[i];
-		var startFrame = a.start;
-		var endFrame = a.end;
-		if(endFrame){
-			if(startFrame.time <= time && endFrame.time >= time){
-				validAnnos.push(a);
-			}
-		}else{
-			if(startFrame.time <= time && startFrame.time + 1 >= time){
-				validAnnos.push(a);
-			}
-		}
-	}
-
-	return validAnnos;
-}
-
-function clearAnnotation(){
-	var view = this;
-	d.empty(d.first(view.el, ".annos-con"));
-}
-
-function showAnnotation(anno){
-	var view = this;
-	var conEl = d.first(view.el, ".annos-con");
-	var divEl = render("HomeView-annotation", anno);
-	var width = conEl.clientWidth;
-	var height = conEl.clientHeight;
-	d.append(conEl, divEl);
-	divEl = d.first(conEl, ".anno:last-child");
-
-	var frame = anno.start;
-
-	// position and size
-	divEl.style.left = (frame.x * 100) + "%";
-	divEl.style.top = (frame.y * 100) + "%";
-	divEl.style.color = frame.color;
-	divEl.style.backgroundColor = color.fade(frame.color, .3);
-
-	if(anno.type == "circle"){
-		divEl.classList.add("circle");
-		var r = Math.min(width, height);
-		divEl.style.width = (frame.r * r) + "px";
-		divEl.style.height = (frame.r * r) + "px";
-		divEl.style.borderRadius = (frame.r * r) + "px";
-	}else{
-		divEl.classList.add("rectangle");
-		divEl.style.width = (frame.w * width) + "px";
-		divEl.style.height = (frame.h * height) + "px";
-	}
-
-}
-
-// --------- /annotation ---------//
