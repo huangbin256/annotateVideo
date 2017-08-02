@@ -130,6 +130,7 @@ d.register("HomeView",{
 		"click; .anno":function(evt){
 			var view = this;
 			selectAnno.call(view, evt.selectTarget);
+			view._videoEl.pause();
 		}
 	},
 	docEvents: {
