@@ -54,7 +54,6 @@ d.register("HomeView",{
 			var anno = view._va.generateAnnotation(videoEl.currentTime, type);
 			view._va.addAnnotation(anno);
 			view._va.showAnnotation(anno);
-			view._videoEl.pause();
 		},
 
 		"keyup; .time-values":function(evt){
@@ -126,6 +125,11 @@ d.register("HomeView",{
 					y: evt.pageY
 				};
 			}
+		},
+
+		"click; .anno":function(evt){
+			var view = this;
+			selectAnno.call(view, evt.selectTarget);
 		}
 	},
 	docEvents: {
@@ -335,7 +339,7 @@ d.register("HomeView",{
 			var view = this;
 			// delete key
 			if(evt.keyCode == 8){
-				var annoEl = d.first(view.el, ".anno:focus");
+				var annoEl = d.first(view.el, ".anno.selected");
 				view._va.deleteAnnotation(annoEl);
 			}
 		}
@@ -390,3 +394,13 @@ function isPlay(){
 	return !view._videoEl.paused;
 }
 // --------- /controls ---------//
+
+
+function selectAnno(annoEl){
+	var view = this;
+	var annoConEl = d.first(view.el, ".annos-con");
+	d.all(annoConEl, ".anno").forEach(function(itemEl){
+		itemEl.classList.remove("selected");
+	});
+	annoEl.classList.add("selected");
+}
