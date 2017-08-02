@@ -29,9 +29,7 @@ d.register("HomeView",{
 			showCurrentTime.call(view);
 
 			// update annotation in video
-			if(isPlay.call(view)){
-				view._va.refreshAnnotations();
-			}
+			view._va.refreshAnnotations();
 		});
 
 		d.on(view._videoEl, "play", function(evt){
@@ -341,7 +339,7 @@ d.register("HomeView",{
 			// delete key
 			if(evt.keyCode == 8){
 				var annoEl = d.first(view.el, ".anno.selected");
-				view._va.deleteAnnotation(annoEl);
+				view._va.endAnnotation(annoEl);
 			}
 		}
 	}

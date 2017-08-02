@@ -23,6 +23,7 @@ VideoAnnotation.prototype.generateAnnotation = function(time, type){
 	var w = Math.random() * (1 - x);
 	var h = Math.random() * (1 - y);
 	var id = utils.random();
+	var c = color.random();
 
 	var obj = {
 		id: id,
@@ -33,14 +34,24 @@ VideoAnnotation.prototype.generateAnnotation = function(time, type){
 		x: x,
 		y: y,
 		time: time,
-		color: color.random()
+		color: c
+	};
+
+	obj.end = {
+		x: x,
+		y: y,
+		time: self._videoEl.duration,
+		color: c
 	};
 
 	if(type == "circle"){
 		obj.start.r = Math.min(w, h);
+		obj.end.r = Math.min(w, h);
 	}else{
 		obj.start.w = w;
 		obj.start.h = h;
+		obj.end.w = w;
+		obj.end.h = h;
 	}
 
 	return obj;
@@ -80,6 +91,26 @@ VideoAnnotation.prototype.updateAnnotation = function(annoEl){
 	self._annotations.splice(index, 1, newAnno);
 }
 
+
+VideoAnnotation.prototype.endAnnotation = function(annoEl){
+	var self = this;
+	if(!annoEl){
+		return ;
+	}
+
+	var id = annoEl.getAttribute("data-anno-id");
+	var endTime = self._videoEl.currentTime;
+	var index = getIndexByEl.call(self, annoEl);
+	var anno = self._annotations[index];
+	anno.end.time = endTime;
+	self._annotations.splice(index, 1, anno);
+	d.remove(annoEl);
+
+	if(anno.end.time - anno.start.time <= 1){
+		self._annotations.splice(index, 1);
+	}
+}
+
 VideoAnnotation.prototype.deleteAnnotation = function(annoEl){
 	var self = this;
 	if(!annoEl){
@@ -93,11 +124,15 @@ VideoAnnotation.prototype.deleteAnnotation = function(annoEl){
 
 VideoAnnotation.prototype.refreshAnnotations = function(){
 	var self = this;
-	clearAnnotation.call(self);
-	var annos = getValidAnnotations.call(self, self._videoEl.currentTime);
-	if(annos.length > 0){
-		for(var i = 0; i < annos.length; i++){
-			self.showAnnotation(annos[i]);
+	var validAnnos = getValidAnnotations.call(self, self._videoEl.currentTime);
+	clearInvalidAnnotation.call(self, validAnnos);
+	if(validAnnos.length > 0){
+		for(var i = 0; i < validAnnos.length; i++){
+			var anno = validAnnos[i];
+			var annoEl = d.first(self._videoConEl, ".anno[data-anno-id='"+anno.id+"']");
+			if(!annoEl){
+				self.showAnnotation(anno);
+			}
 		}
 	}
 }
@@ -132,9 +167,20 @@ VideoAnnotation.prototype.showAnnotation = function(anno){
 	}
 }
 
-function clearAnnotation(){
+function clearInvalidAnnotation(validAnnos){
 	var self = this;
-	d.empty(d.first(self._videoConEl, ".annos-con"));
+	var obj = {};
+	for(var i = 0; i < validAnnos.length; i++){
+		var validAnno = validAnnos[i];
+		obj[validAnno.id] = validAnnos;
+	}
+
+	d.all(self._videoConEl, ".annos-con .anno").forEach(function(annoEl){
+		var id = annoEl.getAttribute("data-anno-id");
+		if(!obj[id]){
+			d.remove(annoEl);
+		}
+	});
 }
 
 function getValidAnnotations(time){
