@@ -41,6 +41,7 @@ d.register("HomeView",{
 		});
 		// --------- /video events ---------//
 
+		refreshAnnosItem.call(view);
 	},
 
 	events: {
@@ -342,6 +343,13 @@ d.register("HomeView",{
 				view._va.endAnnotation(annoEl);
 			}
 		}
+	},
+
+	hubEvents: {
+		"annotationHub; CHANGE": function(){
+			var view = this;
+			refreshAnnosItem.call(view);
+		}
 	}
 
 });
@@ -402,4 +410,14 @@ function selectAnno(annoEl){
 		itemEl.classList.remove("selected");
 	});
 	annoEl.classList.add("selected");
+}
+
+function refreshAnnosItem(){
+	var view = this;
+	var annoItems = view._va.getAnnotations();
+	var conEl = d.first(view.el, ".anno-items-con");
+	d.empty(conEl);
+	for(var i = 0; i < annoItems.length; i++){
+		d.append(conEl, render("HomeView-anno-items", annoItems[i]));
+	}
 }

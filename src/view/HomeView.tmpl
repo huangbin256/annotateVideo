@@ -1,36 +1,51 @@
 <script id="HomeView" type="text/html">
 <div class="HomeView">
-	
-	<div class="video-con">
-		<video controls>
-			<source src="/api/video?n=video01.mp4" type="video/mp4"/>
-			<!-- fallback -->
-			Your browser does not support the <code>video</code> element.
-		</video>
-		<div class="annos-con">
+	<div class="HomeView-content">
+		<div class="video-con">
+			<video controls>
+				<source src="/api/video?n=video01.mp4" type="video/mp4"/>
+				<!-- fallback -->
+				Your browser does not support the <code>video</code> element.
+			</video>
+			<div class="annos-con">
+			</div>
+		</div>
+
+		<div class="controlbar">
+			<div class="btn btn-start">Start</div>
+			<div class="btn btn-prev">{{{symbol "ico-chevron-left"}}}</div>
+			<div class="btn btn-play">Play</div>
+			<div class="btn btn-next">{{{symbol "ico-chevron-right"}}}</div>
+			<div class="btn btn-end">End</div>
+			<div class="slide-bar time-progress">
+				<div class="slide-item"></div>
+			</div>
+			<input name="times" class="time-values" />
+			<span>Vol:</span>
+			<div class="slide-bar volume-progress">
+				<div class="slide-item"></div>
+			</div>
+		</div>
+		<div class="toolbar">
+			<div class="btn btn-add-anno" data-type="rect">Add Rect</div>
+			<div class="btn btn-add-anno" data-type="circle">Add Circle</div>
 		</div>
 	</div>
 
-	<div class="controlbar">
-		<div class="btn btn-start">Start</div>
-		<div class="btn btn-prev">{{{symbol "ico-chevron-left"}}}</div>
-		<div class="btn btn-play">Play</div>
-		<div class="btn btn-next">{{{symbol "ico-chevron-right"}}}</div>
-		<div class="btn btn-end">End</div>
-		<div class="slide-bar time-progress">
-			<div class="slide-item"></div>
-		</div>
-		<input name="times" class="time-values" />
-		<span>Vol:</span>
-		<div class="slide-bar volume-progress">
-			<div class="slide-item"></div>
-		</div>
-	</div>
-	<div class="toolbar">
-		<div class="btn btn-add-anno" data-type="rect">Add Rect</div>
-		<div class="btn btn-add-anno" data-type="circle">Add Circle</div>
+	<div class="HomeView-right anno-items-con">
+		
 	</div>
 </div>
 </script>
 
-
+<script id="HomeView-anno-items" type="text/html">
+	<div class="anno-item" data-anno-id="{{id}}">
+		<div class="top">
+			<div class="item-id">{{id}}</div>
+		</div>
+		<div class="bottom">
+			<div class="item-start-time">Start: {{start.time}}</div>
+			<div class="item-end-time">End: {{end.time}}</div>
+		</div>
+	</div>
+</script>

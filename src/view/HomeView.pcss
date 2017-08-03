@@ -4,10 +4,17 @@
 	
 	flex: 1;
 	display: flex;
-	flex-direction: column;
 	flex-wrap: wrap;
 	align-items: center;
 	justify-content: center;
+
+	&-content{
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		flex-direction: column;
+	}
 	
 	.video-con{
 		display: flex;
@@ -127,5 +134,38 @@
 	}
 	.toolbar{
 		margin-top: 8px;
+	}
+
+	.anno-items-con{
+		overflow-y: auto;
+		width: 280px;
+		height: 480px;
+		margin-left: 24px;
+		border: 1px solid $color-grey;
+		border-radius: 4px;
+		.anno-item{
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			height: 48px;
+			padding: 4px 8px;
+			background: $color-grey-lightest;
+			font-size: 12px;
+			border-bottom: 1px solid $color-grey;
+			&:hover{
+				background: $color-grey-lighter;
+			}
+			.top{
+				flex: 1;
+				display: flex;
+			}
+			.bottom{
+				flex: 1;
+				display: flex;
+				> *{
+					flex: 1;
+				}
+			}
+		}
 	}
 }

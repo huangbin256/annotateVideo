@@ -8,12 +8,18 @@ var color = require("js-app/color.js");
 */
 
 module.exports = VideoAnnotation;
+var annotationHub = d.hub("annotationHub");
 
 function VideoAnnotation(videoConEl){
 	// annotation: {id: 1, time: 1, start: {x: 1, y: 1}, end: {x: 1, y: 1}}
 	this._annotations = [];
 	this._videoConEl = videoConEl;
 	this._videoEl = d.first(videoConEl, "video");
+}
+
+
+VideoAnnotation.prototype.getAnnotations = function(){
+	return Object.assign([], this._annotations);
 }
 
 VideoAnnotation.prototype.generateAnnotation = function(time, type){
@@ -60,6 +66,7 @@ VideoAnnotation.prototype.generateAnnotation = function(time, type){
 VideoAnnotation.prototype.addAnnotation = function(newAnno){
 	var self = this;
 	self._annotations.push(newAnno);
+	annotationHub.pub("CHANGE", self.getAnnotations());
 }
 
 VideoAnnotation.prototype.updateAnnotation = function(annoEl){
@@ -89,6 +96,8 @@ VideoAnnotation.prototype.updateAnnotation = function(annoEl){
 		frame.h = annoEl.offsetHeight / height;
 	}
 	self._annotations.splice(index, 1, newAnno);
+	
+	annotationHub.pub("CHANGE", self.getAnnotations());
 }
 
 
@@ -109,6 +118,7 @@ VideoAnnotation.prototype.endAnnotation = function(annoEl){
 	if(anno.end.time - anno.start.time <= 1){
 		self._annotations.splice(index, 1);
 	}
+	annotationHub.pub("CHANGE", self.getAnnotations());
 }
 
 VideoAnnotation.prototype.deleteAnnotation = function(annoEl){
@@ -120,6 +130,7 @@ VideoAnnotation.prototype.deleteAnnotation = function(annoEl){
 	var index = getIndexByEl.call(self, annoEl);
 	self._annotations.splice(index, 1);
 	d.remove(annoEl);
+	annotationHub.pub("CHANGE", self.getAnnotations());
 }
 
 VideoAnnotation.prototype.refreshAnnotations = function(){
