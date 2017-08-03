@@ -163,6 +163,7 @@ VideoAnnotation.prototype.showAnnotation = function(anno){
 	divEl.style.left = (frame.x * 100) + "%";
 	divEl.style.top = (frame.y * 100) + "%";
 	divEl.style.color = frame.color;
+	divEl.style.boxShadow = "0 0 0 1px " + frame.color;
 	divEl.style.backgroundColor = color.fade(frame.color, .3);
 
 	if(anno.type == "circle"){

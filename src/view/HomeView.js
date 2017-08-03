@@ -162,9 +162,9 @@ d.register("HomeView",{
 							x1 += deltaX;
 							y1 += deltaY;
 							x1 = x1 < 0 ? 0 : x1;
-							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+							x1 = x1 > x2 ? x2 : x1;
 							y1 = y1 < 0 ? 0 : y1;
-							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+							y1 = y1 > y2 ? y2 : y1;
 
 							if(isCircle){
 								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
@@ -178,7 +178,7 @@ d.register("HomeView",{
 							x2 = x2 < x1 ? x1 : x2;
 							x2 = x2 > width ? width : x2;
 							y1 = y1 < 0 ? 0 : y1;
-							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+							y1 = y1 > y2 ? y2 : y1;
 
 							if(isCircle){
 								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
@@ -204,7 +204,7 @@ d.register("HomeView",{
 							y2 += deltaY;
 
 							x1 = x1 < 0 ? 0 : x1;
-							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+							x1 = x1 > x2 ? x2 : x1;
 							y2 = y2 < y1 ? y1 : y2;
 							y2 = y2 > height ? height : y2;
 
@@ -219,13 +219,13 @@ d.register("HomeView",{
 							x1 += deltaX;
 
 							x1 = x1 < 0 ? 0 : x1;
-							x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+							x1 = x1 > x2 ? x2 : x1;
 
 							if(isCircle){
 								y1 += deltaX;
 
 								y1 = y1 < 0 ? 0 : y1;
-								y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+								y1 = y1 > y2 ? y2 : y1;
 
 								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
 								x1 = x2 - dis;
@@ -235,13 +235,13 @@ d.register("HomeView",{
 							y1 +=+ deltaY;
 
 							y1 = y1 < 0 ? 0 : y1;
-							y1 = y1 > y2 - 2 ? y2 - 2 : y1;
+							y1 = y1 > y2 ? y2 : y1;
 
 							if(isCircle){
 								x1 += deltaY;
 
 								x1 = x1 < 0 ? 0 : x1;
-								x1 = x1 > x2 - 2 ? x2 - 2 : x1;
+								x1 = x1 > x2 ? x2 : x1;
 
 								var dis = Math.min(Math.abs(x2 - x1), Math.abs(y2 - y1));
 								x1 = x2 - dis;
@@ -282,8 +282,8 @@ d.register("HomeView",{
 						}
 					}
 
-					annoEl.style.left = (x1 / width * 100) + "%";
-					annoEl.style.top = (y1 / height * 100)  + "%";
+					annoEl.style.left = x1 + "px";
+					annoEl.style.top = y1 + "px";
 					annoEl.style.width = (x2 - x1) + "px";
 					annoEl.style.height = (y2 - y1) + "px";
 
@@ -297,16 +297,17 @@ d.register("HomeView",{
 					var oy = annoEl.offsetTop;
 					var ow = annoEl.offsetWidth;
 					var oh = annoEl.offsetHeight;
-					var left = (ox + deltaX) / width;
-					var top = (oy + deltaY) / height;
+
+					var left = ox + deltaX;
+					var top = oy + deltaY;
 					
 					left = left < 0 ? 0 : left;
-					left = left * width + ow > width ? (width - ow) / width : left;
-					annoEl.style.left = left * 100 + "%";
+					left = left + ow > width ? width - ow : left;
+					annoEl.style.left = left + "px";
 					
 					top = top < 0 ? 0 : top;
-					top = top * height + oh > height ? (height - oh) / height : top;
-					annoEl.style.top = top * 100 + "%";
+					top = top + oh > height ? height - oh : top;
+					annoEl.style.top = top + "px";
 				}
 			}
 
