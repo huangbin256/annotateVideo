@@ -30,6 +30,11 @@ d.register("HomeView",{
 
 			// update annotation in video
 			view._va.refreshAnnotations();
+
+			if(view._cacheSelectedId){
+				selectAnno.call(view, view._cacheSelectedId);
+				view._cacheSelectedId = null;
+			}
 		});
 
 		d.on(view._videoEl, "play", function(evt){
@@ -128,8 +133,18 @@ d.register("HomeView",{
 
 		"click; .anno":function(evt){
 			var view = this;
-			selectAnno.call(view, evt.selectTarget);
+			selectAnno.call(view, evt.selectTarget.getAttribute("data-anno-id"));
 			view._videoEl.pause();
+		},
+
+		"click; .anno-item":function(evt){
+			var view = this;
+			var id = d.closest(evt.selectTarget, ".anno-item").getAttribute("data-anno-id");
+			var annoEl = d.first(view.el, ".annos-con .anno[data-anno-id='"+id+"']");
+			var anno = view._va.getAnnotation(id);
+			var time = anno.end.time;
+			gotoTime.call(view, time);
+			view._cacheSelectedId = id;
 		},
 
 		"click; .btn-remove-anno":function(evt){
@@ -411,9 +426,10 @@ function isPlay(){
 // --------- /controls ---------//
 
 
-function selectAnno(annoEl){
+function selectAnno(annoId){
 	var view = this;
 	var annoConEl = d.first(view.el, ".annos-con");
+	var annoEl = d.first(annoConEl, ".anno[data-anno-id='"+annoId+"']");
 	d.all(annoConEl, ".anno").forEach(function(itemEl){
 		itemEl.classList.remove("selected");
 	});

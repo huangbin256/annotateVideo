@@ -22,6 +22,16 @@ VideoAnnotation.prototype.getAnnotations = function(){
 	return Object.assign([], this._annotations);
 }
 
+VideoAnnotation.prototype.getAnnotation = function(annoId){
+	for(var i = 0; i < this._annotations.length; i++){
+		var anno = this._annotations[i];
+		if(anno.id == annoId){
+			return Object.assign({}, anno);
+		}
+	}
+	return null;
+}
+
 VideoAnnotation.prototype.generateAnnotation = function(time, type){
 	var self = this;
 	var x = Math.random();
