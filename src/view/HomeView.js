@@ -130,6 +130,13 @@ d.register("HomeView",{
 			var view = this;
 			selectAnno.call(view, evt.selectTarget);
 			view._videoEl.pause();
+		},
+
+		"click; .btn-remove-anno":function(evt){
+			var view = this;
+			var id = d.closest(evt.selectTarget, ".anno-item").getAttribute("data-anno-id");
+			var annoEl = d.first(view.el, ".annos-con .anno[data-anno-id='"+id+"']");
+			view._va.deleteAnnotation(annoEl);
 		}
 	},
 	docEvents: {
