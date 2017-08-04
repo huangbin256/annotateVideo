@@ -3,7 +3,8 @@ module.exports = {
 	rgb: colorRgb,
 	hex: colorHex,
 	random: random,
-	fade: fade
+	fade: fade,
+	linear: linear
 };
 
 var COLOR_REG = /^#([0-9a-fA-f]{3}|[0-9a-fA-f]{6})$/;
@@ -30,13 +31,30 @@ function fade(color, alpha){
 	return "rgba("+arrColor[0]+", "+arrColor[1]+", "+arrColor[2]+", "+alpha+")";
 }
 
-// the color can be hex or rgb, step is between 0 and 1
-function gradient(startColor, endColor, step){
-	var startRGB = colorRgb(startColor);
+function linear(startColor, endColor, ratio){
+	var startRGB = colorRgbArr(startColor);
+	var endRGB = colorRgbArr(endColor);
 	var startR = startRGB[0];
 	var startG = startRGB[1];
 	var startB = startRGB[2];
-	var endRGB = colorRgb(endColor);
+	var endR = endRGB[0];
+	var endG = endRGB[1];
+	var endB = endRGB[2];
+	var sR = endR-startR;
+	var sG = endG-startG;
+	var sB = endB-startB;
+
+	var rgbColor = 'rgb('+parseInt((sR*ratio+startR))+','+parseInt((sG*ratio+startG))+','+parseInt((sB*ratio+startB))+')';
+	return rgbColor;
+}
+
+// the color can be hex or rgb, step is between 0 and 1
+function gradient(startColor, endColor, step){
+	var startRGB = colorRgbArr(startColor);
+	var startR = startRGB[0];
+	var startG = startRGB[1];
+	var startB = startRGB[2];
+	var endRGB = colorRgbArr(endColor);
 	var endR = endRGB[0];
 	var endG = endRGB[1];
 	var endB = endRGB[2];
@@ -104,4 +122,10 @@ function colorHex(rgb){
 	}else{
 		return colorRgb;
 	}
+}
+
+function colorRgbArr(c){
+	var cRgb = colorRgb(c);
+	var arr = cRgb.replace(/(?:\(|\)|rgb|RGB)*/g,"").split(",");
+	return arr;
 }

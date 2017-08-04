@@ -34,26 +34,29 @@ VideoAnnotation.prototype.getAnnotation = function(annoId){
 
 VideoAnnotation.prototype.generateAnnotation = function(time, type){
 	var self = this;
-	var x = Math.random();
-	var y = Math.random();
-	var w = Math.random() * (1 - x);
-	var h = Math.random() * (1 - y);
+	var width = self._videoEl.offsetWidth;
+	var height = self._videoEl.offsetHeight;
+	var x = parseInt(0.3 * width);
+	var y = parseInt(0.3 * height);
+	var w = parseInt(0.4 * width);
+	var h = parseInt(0.4 * height);
 	var id = utils.random();
 	var c = color.random();
 
 	var obj = {
 		id: id,
-		type: type
+		type: type,
+		frames: []
 	}
 
-	obj.start = {
+	obj.frames[0] = {
 		x: x,
 		y: y,
 		time: time,
 		color: c
 	};
 
-	obj.end = {
+	obj.frames[1] = {
 		x: x,
 		y: y,
 		time: self._videoEl.duration,
@@ -61,15 +64,14 @@ VideoAnnotation.prototype.generateAnnotation = function(time, type){
 	};
 
 	if(type == "circle"){
-		obj.start.r = Math.min(w, h);
-		obj.end.r = Math.min(w, h);
+		obj.frames[0].r = Math.min(w, h);
+		obj.frames[1].r = Math.min(w, h);
 	}else{
-		obj.start.w = w;
-		obj.start.h = h;
-		obj.end.w = w;
-		obj.end.h = h;
+		obj.frames[0].w = w;
+		obj.frames[0].h = h;
+		obj.frames[1].w = w;
+		obj.frames[1].h = h;
 	}
-
 	return obj;
 }
 
@@ -96,15 +98,17 @@ VideoAnnotation.prototype.updateAnnotation = function(annoEl){
 	var oy = annoEl.offsetTop;
 	var ow = annoEl.offsetWidth;
 	var oh = annoEl.offsetHeight;
-	var frame = newAnno.start;
-	frame.x = ox / width;
-	frame.y = oy / height;
+	var frame = Object.assign({}, newAnno.frames[0]);
+	frame.x = ox;
+	frame.y = oy;
 	if(newAnno.type == "circle"){
-		frame.r = ow / width;
+		frame.r = ow;
 	}else{
-		frame.w = annoEl.offsetWidth / width;
-		frame.h = annoEl.offsetHeight / height;
+		frame.w = annoEl.offsetWidth;
+		frame.h = annoEl.offsetHeight;
 	}
+	frame.time = self._videoEl.currentTime;
+	saveFrame.call(self, newAnno, frame);
 	self._annotations.splice(index, 1, newAnno);
 	
 	annotationHub.pub("CHANGE", self.getAnnotations());
@@ -121,13 +125,21 @@ VideoAnnotation.prototype.endAnnotation = function(annoEl){
 	var endTime = self._videoEl.currentTime;
 	var index = getIndexByEl.call(self, annoEl);
 	var anno = self._annotations[index];
-	anno.end.time = endTime;
+
+	var frames = anno.frames;
+	var newFrames = [];
+	for(var i = 0; i < frames.length; i++){
+		var f = frames[i];
+		if(f.time < endTime){
+			newFrames.push(f);
+		}
+	}
+
+	newFrames.push(Object.assign({}, frames[frames.length - 1], {time: endTime}));
+	anno.frames = newFrames;
 	self._annotations.splice(index, 1, anno);
 	d.remove(annoEl);
 
-	if(anno.end.time - anno.start.time <= 1){
-		self._annotations.splice(index, 1);
-	}
 	annotationHub.pub("CHANGE", self.getAnnotations());
 }
 
@@ -151,41 +163,40 @@ VideoAnnotation.prototype.refreshAnnotations = function(){
 		for(var i = 0; i < validAnnos.length; i++){
 			var anno = validAnnos[i];
 			var annoEl = d.first(self._videoConEl, ".anno[data-anno-id='"+anno.id+"']");
-			if(!annoEl){
-				self.showAnnotation(anno);
-			}
+			self.showAnnotation(anno, annoEl);
 		}
 	}
 }
 
-VideoAnnotation.prototype.showAnnotation = function(anno){
+VideoAnnotation.prototype.showAnnotation = function(anno, annoEl){
 	var self = this;
-	var conEl = d.first(self._videoConEl, ".annos-con");
-	var divEl = render("annotation", anno);
-	var width = conEl.clientWidth;
-	var height = conEl.clientHeight;
-	d.append(conEl, divEl);
-	divEl = d.first(conEl, ".anno:last-child");
+	if(!annoEl){
+		var conEl = d.first(self._videoConEl, ".annos-con");
+		var divEl = render("annotation", anno);
+		var width = conEl.clientWidth;
+		var height = conEl.clientHeight;
+		d.append(conEl, divEl);
+		annoEl = d.first(conEl, ".anno:last-child");
+	}
 
-	var frame = anno.start;
+	var frame = getSnapshotByTime.call(self, anno, self._videoEl.currentTime);
 
 	// position and size
-	divEl.style.left = (frame.x * 100) + "%";
-	divEl.style.top = (frame.y * 100) + "%";
-	divEl.style.color = frame.color;
-	divEl.style.boxShadow = "0 0 0 1px " + frame.color;
-	divEl.style.backgroundColor = color.fade(frame.color, .3);
+	annoEl.style.left = frame.x + "px";
+	annoEl.style.top = frame.y + "px";
+	annoEl.style.color = frame.color;
+	annoEl.style.boxShadow = "0 0 0 1px " + frame.color;
+	annoEl.style.backgroundColor = color.fade(frame.color, .3);
 
 	if(anno.type == "circle"){
-		divEl.classList.add("circle");
-		var r = Math.min(width, height);
-		divEl.style.width = (frame.r * r) + "px";
-		divEl.style.height = (frame.r * r) + "px";
-		divEl.style.borderRadius = (frame.r * r) + "px";
+		annoEl.classList.add("circle");
+		annoEl.style.width = frame.r + "px";
+		annoEl.style.height = frame.r + "px";
+		annoEl.style.borderRadius = frame.r + "px";
 	}else{
-		divEl.classList.add("rectangle");
-		divEl.style.width = (frame.w * width) + "px";
-		divEl.style.height = (frame.h * height) + "px";
+		annoEl.classList.add("rectangle");
+		annoEl.style.width = frame.w + "px";
+		annoEl.style.height = frame.h + "px";
 	}
 }
 
@@ -210,8 +221,8 @@ function getValidAnnotations(time){
 	var validAnnos = [];
 	for(var i = 0; i < self._annotations.length; i++){
 		var a = self._annotations[i];
-		var startFrame = a.start;
-		var endFrame = a.end;
+		var startFrame = a.frames[0];
+		var endFrame = a.frames[a.frames.length - 1];
 		if(endFrame){
 			if(startFrame.time <= time && endFrame.time >= time){
 				validAnnos.push(a);
@@ -225,8 +236,6 @@ function getValidAnnotations(time){
 
 	return validAnnos;
 }
-
-
 
 function getIndexByEl(annoEl){
 	var self = this;
@@ -242,5 +251,63 @@ function getIndexByEl(annoEl){
 
 function getAnnoByEl(annoEl){
 	var self = this;
-	return self._annotations[getIndexByEl.call(view, annoEl)];
+	return self._annotations[getIndexByEl.call(self, annoEl)];
+}
+
+// for snapshot function
+function getSnapshotByTime(anno, time){
+	var self = this;
+	if(isNaN(time) || time < 0){
+		return null;
+	}
+
+	var frames = anno.frames;
+	for(var i = 0; i < frames.length - 1; i++){
+		var startFrame = frames[i];
+		var endFrame = frames[i + 1];
+
+		if(endFrame.time >= time && startFrame.time <= time){
+			var snapshot = {};
+			var duration = endFrame.time - startFrame.time;
+			snapshot.time = time;
+			var timeVar = time - startFrame.time;
+			snapshot.x = getValueByTime.call(self, startFrame.x, endFrame.x, duration, timeVar);
+			snapshot.y = getValueByTime.call(self, startFrame.y, endFrame.y, duration, timeVar);
+			snapshot.color = color.linear(startFrame.color, endFrame.color, timeVar / duration);
+
+			if(anno.type == "circle"){
+				snapshot.r = getValueByTime.call(self, startFrame.r, endFrame.r, duration, timeVar);
+			}else{
+				snapshot.w = getValueByTime.call(self, startFrame.w, endFrame.w, duration, timeVar);
+				snapshot.h = getValueByTime.call(self, startFrame.h, endFrame.h, duration, timeVar);
+			}
+			return snapshot;
+		}
+	}
+	
+	return null;
+}
+
+// for linear function
+function getValueByTime(start, end, duration, time){
+	var ratio = time / duration;
+	return start + (end - start) * ratio;
+}
+
+function saveFrame(anno, frame){
+	var self = this;
+	if(!anno || !anno.frames){
+		return ;
+	}
+
+	var frames = anno.frames;
+	for(var i = 0; i < frames.length; i++){
+		if(frames[i].time == frame.time){
+			frames.splice(i, 1, frame);
+			break;
+		}else if(frames[i].time > frame.time){
+			frames.splice(i, 0 , frame);
+			break;
+		}	
+	}
 }

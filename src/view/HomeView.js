@@ -142,7 +142,7 @@ d.register("HomeView",{
 			var id = d.closest(evt.selectTarget, ".anno-item").getAttribute("data-anno-id");
 			var annoEl = d.first(view.el, ".annos-con .anno[data-anno-id='"+id+"']");
 			var anno = view._va.getAnnotation(id);
-			var time = anno.end.time;
+			var time = anno.frames[anno.frames.length - 1].time;
 			gotoTime.call(view, time);
 			view._cacheSelectedId = id;
 		},
@@ -442,6 +442,8 @@ function refreshAnnosItem(){
 	var conEl = d.first(view.el, ".anno-items-con");
 	d.empty(conEl);
 	for(var i = 0; i < annoItems.length; i++){
+		annoItems[i].start = annoItems[i].frames[0];
+		annoItems[i].end = annoItems[i].frames[annoItems[i].frames.length - 1];
 		d.append(conEl, render("HomeView-anno-items", annoItems[i]));
 	}
 }
