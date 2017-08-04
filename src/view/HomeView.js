@@ -403,9 +403,11 @@ function checkPlay(){
 	if(paused){
 		btnEl.classList.add("stop");
 		btnEl.innerText = "Play";
+		view.el.classList.remove("playing");
 	}else{
 		btnEl.classList.remove("stop");
 		btnEl.innerText = "Stop";
+		view.el.classList.add("playing");
 	}
 }
 
