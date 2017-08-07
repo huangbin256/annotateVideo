@@ -44,10 +44,14 @@
 		<div class="top">
 			<div class="item-id">{{id}}</div>
 		</div>
-		<div class="bottom">
-			<div class="item-frame-size">frames: {{frames.length}}</div>
-			<div class="item-start-time">Start: {{start.time}}</div>
-			<div class="item-end-time">End: {{end.time}}</div>
+		<div>Frames: </div>
+		<div class="frames-con">
+			{{#each frames}}
+			<div class="anno-frame">
+				<div class="time-label">Frame time: (s)</div>
+				<div class="time-value">{{time}}</div>
+			</div>
+			{{/each}}
 		</div>
 	</div>
 </script>
